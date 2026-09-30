@@ -21,7 +21,7 @@ from collections import deque
 import time
 
 FACE_SWAPPER = None
-THREAD_LOCK = threading.Lock()
+THREAD_LOCK = threading.RLock()
 NAME = "DLC.FACE-SWAPPER"
 
 # --- START: Added for Interpolation ---
@@ -151,9 +151,10 @@ def swap_face(source_face: Face, target_face: Face, temp_frame: Frame) -> Frame:
         if not temp_frame.flags['C_CONTIGUOUS']:
             temp_frame = np.ascontiguousarray(temp_frame)
         
-        swapped_frame_raw = face_swapper.get(
-            temp_frame, target_face, source_face, paste_back=True
-        )
+        with THREAD_LOCK:
+            swapped_frame_raw = face_swapper.get(
+                temp_frame, target_face, source_face, paste_back=True
+            )
 
         # --- START: CRITICAL FIX FOR ORT 1.17 ---
         # Check the output type and range from the model

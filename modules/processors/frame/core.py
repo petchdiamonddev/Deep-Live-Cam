@@ -76,29 +76,25 @@ def set_frame_processors_modules_from_ui(frame_processors: List[str]) -> None:
                  print(f"Warning: Error removing frame processor {frame_processor}: {e}")
 
 def multi_process_frame(source_path: str, temp_frame_paths: List[str], process_frames: Callable[[str, List[str], Any], None], progress: Any = None) -> None:
-    """Process frames in parallel with optimized batching and memory management."""
-    max_workers = modules.globals.execution_threads
-    
-    # Determine optimal batch size based on available memory and thread count
-    # Process frames in batches to avoid memory overflow
-    batch_size = max(1, min(32, len(temp_frame_paths) // max(1, max_workers)))
-    
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Process in batches to manage memory better
-        for i in range(0, len(temp_frame_paths), batch_size):
-            batch = temp_frame_paths[i:i + batch_size]
-            futures = []
-            
-            for path in batch:
-                future = executor.submit(process_frames, source_path, [path], progress)
-                futures.append(future)
-            
-            # Wait for batch to complete before starting next batch
-            for future in futures:
-                try:
-                    future.result()
-                except Exception as e:
-                    print(f"Error processing frame: {e}")
+    """Process frames sequentially for DirectML or in parallel with thread pool."""
+    if 'DmlExecutionProvider' in modules.globals.execution_providers or getattr(modules.globals, 'execution_threads', 1) == 1:
+        process_frames(source_path, temp_frame_paths, progress)
+    else:
+        max_workers = modules.globals.execution_threads
+        if 'CUDAExecutionProvider' in modules.globals.execution_providers:
+            max_workers = min(max_workers, 4)
+
+        batch_size = max(1, min(32, len(temp_frame_paths) // max(1, max_workers)))
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for i in range(0, len(temp_frame_paths), batch_size):
+                batch = temp_frame_paths[i:i + batch_size]
+                futures = [executor.submit(process_frames, source_path, [path], progress) for path in batch]
+                for future in futures:
+                    try:
+                        future.result()
+                    except Exception as e:
+                        print(f"Error processing frame: {e}")
 
 
 def process_video(source_path: str, frame_paths: list[str], process_frames: Callable[[str, List[str], Any], None]) -> None:

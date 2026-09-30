@@ -815,12 +815,27 @@ def create_preview(parent: ctk.CTkToplevel) -> ctk.CTkToplevel:
 
 
 def update_status(text: str) -> None:
-    status_label.configure(text=_(text))
-    ROOT.update()
+    if ROOT and status_label:
+        try:
+            display_text = _(text) if callable(_) else text
+            if threading.current_thread() is threading.main_thread():
+                status_label.configure(text=display_text)
+            else:
+                ROOT.after(0, lambda: status_label.configure(text=display_text) if status_label else None)
+        except Exception:
+            pass
 
 
 def update_pop_status(text: str) -> None:
-    popup_status_label.configure(text=_(text))
+    if popup_status_label:
+        try:
+            display_text = _(text) if callable(_) else text
+            if threading.current_thread() is threading.main_thread():
+                popup_status_label.configure(text=display_text)
+            else:
+                ROOT.after(0, lambda: popup_status_label.configure(text=display_text) if popup_status_label else None)
+        except Exception:
+            pass
 
 
 def update_pop_live_status(text: str) -> None:

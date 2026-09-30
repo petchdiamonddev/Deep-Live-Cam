@@ -58,16 +58,14 @@ def detect_fps(target_path: str) -> float:
 
 
 def extract_frames(target_path: str) -> None:
-    """Extract frames with hardware acceleration and optimized settings."""
+    """Extract frames cleanly to temp_directory_path."""
     temp_directory_path = get_temp_directory_path(target_path)
-    
-    # Use hardware-accelerated decoding and optimized pixel format
+    create_temp(target_path)
     run_ffmpeg(
         [
             "-i", target_path,
-            "-vf", "format=rgb24",  # Use video filter for format conversion (faster)
-            "-vsync", "0",  # Prevent frame duplication
-            "-frame_pts", "1",  # Preserve frame timing
+            "-vf", "format=rgb24",
+            "-y",
             os.path.join(temp_directory_path, "%04d.png"),
         ]
     )
@@ -82,47 +80,19 @@ def create_video(target_path: str, fps: float = 30.0) -> None:
     encoder = modules.globals.video_encoder
     encoder_options = []
     
-    # GPU-accelerated encoding options
-    if 'CUDAExecutionProvider' in modules.globals.execution_providers:
-        # NVIDIA GPU encoding
-        if encoder == 'libx264':
-            encoder = 'h264_nvenc'
-            encoder_options = [
-                "-preset", "p7",  # Highest quality preset for NVENC
-                "-tune", "hq",  # High quality tuning
-                "-rc", "vbr",  # Variable bitrate
-                "-cq", str(modules.globals.video_quality),  # Quality level
-                "-b:v", "0",  # Let CQ control bitrate
-                "-multipass", "fullres",  # Two-pass encoding for better quality
-            ]
-        elif encoder == 'libx265':
-            encoder = 'hevc_nvenc'
-            encoder_options = [
-                "-preset", "p7",
-                "-tune", "hq",
-                "-rc", "vbr",
-                "-cq", str(modules.globals.video_quality),
-                "-b:v", "0",
-            ]
-    elif 'DmlExecutionProvider' in modules.globals.execution_providers:
-        # AMD/Intel GPU encoding (DirectML on Windows)
-        if encoder == 'libx264':
-            # Try AMD AMF encoder
-            encoder = 'h264_amf'
-            encoder_options = [
-                "-quality", "quality",  # Quality mode
-                "-rc", "vbr_latency",
-                "-qp_i", str(modules.globals.video_quality),
-                "-qp_p", str(modules.globals.video_quality),
-            ]
-        elif encoder == 'libx265':
-            encoder = 'hevc_amf'
-            encoder_options = [
-                "-quality", "quality",
-                "-rc", "vbr_latency",
-                "-qp_i", str(modules.globals.video_quality),
-                "-qp_p", str(modules.globals.video_quality),
-            ]
+    # Safe encoder configuration compatible with NVIDIA, AMD, and CPU
+    if encoder == 'libx264':
+        encoder_options = [
+            "-preset", "medium",
+            "-crf", str(modules.globals.video_quality or 18),
+            "-pix_fmt", "yuv420p",
+        ]
+    elif encoder == 'libx265':
+        encoder_options = [
+            "-preset", "medium",
+            "-crf", str(modules.globals.video_quality or 23),
+            "-pix_fmt", "yuv420p",
+        ]
     else:
         # CPU encoding with optimized settings
         if encoder == 'libx264':

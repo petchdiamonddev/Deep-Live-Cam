@@ -14,7 +14,7 @@ from modules.utilities import get_temp_directory_path, create_temp, extract_fram
 from pathlib import Path
 
 FACE_ANALYSER = None
-FACE_ANALYSER_LOCK = threading.Lock()
+FACE_ANALYSER_LOCK = threading.RLock()
 
 
 def get_face_analyser() -> Any:
@@ -27,11 +27,11 @@ def get_face_analyser() -> Any:
             if FACE_ANALYSER is None:
                 FACE_ANALYSER = insightface.app.FaceAnalysis(
                     name='buffalo_l',
-                    providers=modules.globals.execution_providers,
+                    providers=['CPUExecutionProvider'],
                     allowed_modules=['detection', 'recognition', 'landmark_2d_106'],
                     root=os.path.abspath('.')
                 )
-                FACE_ANALYSER.prepare(ctx_id=0, det_size=(640, 640))
+                FACE_ANALYSER.prepare(ctx_id=-1, det_size=(640, 640))
     return FACE_ANALYSER
 
 
