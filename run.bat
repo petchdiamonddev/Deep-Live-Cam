@@ -1,5 +1,6 @@
 @echo off
-title Deep-Live-Cam One-Click Setup & Launcher
+title Deep-Live-Cam Launcher
+
 echo ========================================================
 echo   Deep-Live-Cam Automatic Setup & Launcher
 echo ========================================================
