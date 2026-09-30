@@ -173,7 +173,11 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     load_switch_states()
 
-    ctk.deactivate_automatic_dpi_awareness()
+    try:
+        ctk.deactivate_automatic_dpi_awareness()
+    except Exception:
+        pass
+
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
@@ -1078,40 +1082,20 @@ def webcam_preview(root: ctk.CTk, camera_index: int):
 
 
 def get_available_cameras():
-    """Returns a list of available camera names and indices."""
-    if platform.system() == "Windows":
-        try:
-            graph = FilterGraph()
-            devices = graph.get_input_devices()
-
-            # Create list of indices and names
-            camera_indices = list(range(len(devices)))
-            camera_names = devices
-
-            # If no cameras found through DirectShow, try OpenCV fallback
-            if not camera_names:
-                # Try to open camera with index -1 and 0
-                test_indices = [-1, 0]
-                working_cameras = []
-
-                for idx in test_indices:
-                    cap = cv2.VideoCapture(idx)
-                    if cap.isOpened():
-                        working_cameras.append(f"Camera {idx}")
-                        cap.release()
-
-                if working_cameras:
-                    return test_indices[: len(working_cameras)], working_cameras
-
-            # If still no cameras found, return empty lists
-            if not camera_names:
-                return [], ["No cameras found"]
-
-            return camera_indices, camera_names
-
-        except Exception as e:
-            print(f"Error detecting cameras: {str(e)}")
-            return [], ["No cameras found"]
+    """Returns a list of available camera names and indices safely."""
+    try:
+        if platform.system() == "Windows":
+            try:
+                from pygrabber.dshow_graph import FilterGraph
+                graph = FilterGraph()
+                devices = graph.get_input_devices()
+                if devices:
+                    return list(range(len(devices))), devices
+            except Exception as e:
+                print(f"DirectShow camera detection skipped: {e}")
+        return [0, 1], ["กล้อง 0", "กล้อง 1"]
+    except Exception:
+        return [0], ["กล้อง 0"]
     else:
         # Unix-like systems (Linux/Mac) camera detection
         camera_indices = []
