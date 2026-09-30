@@ -43,16 +43,21 @@ FFHQ_TEMPLATE_512 = np.array(
 )
 
 
+def get_model_path() -> str:
+    for name in ["GFPGANv1.4.onnx", "gfpgan-1024.onnx"]:
+        p = os.path.join(models_dir, name)
+        if os.path.exists(p):
+            return p
+    return os.path.join(models_dir, "GFPGANv1.4.onnx")
+
+
 def pre_check() -> bool:
-    model_path = os.path.join(models_dir, "gfpgan-1024.onnx")
+    model_path = get_model_path()
     if not os.path.exists(model_path):
-        update_status(
-            f"GFPGAN ONNX model not found at {model_path}. "
-            "Please place gfpgan-1024.onnx in the models folder.",
-            NAME,
-        )
-        return False
-    return True
+        update_status(f"GFPGAN model not found. Downloading GFPGANv1.4.onnx...", NAME)
+        from modules.utilities import conditional_download
+        conditional_download(models_dir, ["https://huggingface.co/hacksider/deep-live-cam/resolve/main/GFPGANv1.4.onnx"])
+    return os.path.exists(get_model_path())
 
 
 def pre_start() -> bool:
@@ -73,7 +78,12 @@ def get_face_enhancer() -> onnxruntime.InferenceSession:
 
     with THREAD_LOCK:
         if FACE_ENHANCER is None:
-            model_path = os.path.join(models_dir, "gfpgan-1024.onnx")
+            model_path = get_model_path()
+
+            if not os.path.exists(model_path):
+                from modules.utilities import conditional_download
+                conditional_download(models_dir, ["https://huggingface.co/hacksider/deep-live-cam/resolve/main/GFPGANv1.4.onnx"])
+                model_path = get_model_path()
 
             if not os.path.exists(model_path):
                 raise FileNotFoundError(

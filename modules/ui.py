@@ -1194,6 +1194,7 @@ def _processing_thread_func(capture_queue, processed_queue, stop_event,
         except queue.Empty:
             continue
 
+        frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
         temp_frame = frame
 
         if modules.globals.live_mirror:
