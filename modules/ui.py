@@ -180,7 +180,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     root = ctk.CTk()
     root.geometry("780x880")
     root.minsize(740, 820)
-    root.title(f"{modules.metadata.name} {modules.metadata.version} {modules.metadata.edition}")
+    root.title(f"{modules.metadata.name} {modules.metadata.version} {modules.metadata.edition} (ภาษาไทย)")
     root.protocol("WM_DELETE_WINDOW", lambda: destroy())
 
     # --- Header Bar ---
@@ -197,24 +197,25 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     subtitle_label = ctk.CTkLabel(
         header_frame,
-        text="Real-Time Face Swap & Deepfake Studio",
-        font=ctk.CTkFont(size=12, slant="italic"),
+        text="ระบบสลับใบหน้าและเปลี่ยนหน้าคนในวิดีโอ",
+        font=ctk.CTkFont(size=13),
         text_color="#9CA3AF",
     )
     subtitle_label.pack(side="left", padx=5, pady=10)
 
     def toggle_theme(choice):
-        ctk.set_appearance_mode(choice.lower())
+        mode_map = {"ธีมมืด (Dark)": "dark", "ธีมสว่าง (Light)": "light", "ตามระบบ (System)": "system"}
+        ctk.set_appearance_mode(mode_map.get(choice, "dark"))
 
     theme_menu = ctk.CTkOptionMenu(
         header_frame,
-        values=["Dark", "Light", "System"],
+        values=["ธีมมืด (Dark)", "ธีมสว่าง (Light)", "ตามระบบ (System)"],
         command=toggle_theme,
-        width=90,
+        width=130,
         height=28,
     )
     theme_menu.pack(side="right", padx=15, pady=10)
-    theme_menu.set("Dark")
+    theme_menu.set("ธีมมืด (Dark)")
 
     # --- Main Scrollable Container ---
     main_scroll = ctk.CTkScrollableFrame(root, fg_color="transparent")
@@ -233,7 +234,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     source_card.pack(fill="x", pady=(0, 12))
 
     source_title = ctk.CTkLabel(
-        source_card, text="👤 Source Face Image", font=ctk.CTkFont(size=14, weight="bold")
+        source_card, text="👤 รูปภาพใบหน้าต้นฉบับ", font=ctk.CTkFont(size=14, weight="bold")
     )
     source_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -241,7 +242,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     source_preview_frame.pack(fill="x", padx=15, pady=5)
     source_preview_frame.pack_propagate(False)
 
-    source_label = ctk.CTkLabel(source_preview_frame, text="Click 'Select a face' below", text_color="#6B7280")
+    source_label = ctk.CTkLabel(source_preview_frame, text="คลิกปุ่ม 'เลือกรูปใบหน้า' ด้านล่าง", text_color="#6B7280", font=ctk.CTkFont(size=12))
     source_label.pack(fill="both", expand=True, padx=5, pady=5)
 
     btn_frame_1 = ctk.CTkFrame(source_card, fg_color="transparent")
@@ -249,33 +250,35 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     select_face_button = ctk.CTkButton(
         btn_frame_1,
-        text=_("Select a face"),
+        text="📷 เลือกรูปใบหน้า",
+        font=ctk.CTkFont(size=13),
         cursor="hand2",
         command=lambda: select_source_path(),
         fg_color="#2563EB",
         hover_color="#1D4ED8",
     )
     select_face_button.pack(side="left", fill="x", expand=True, padx=(0, 5))
-    ToolTip(select_face_button, _("Choose the source face image to swap onto the target"))
+    ToolTip(select_face_button, "เลือกรูปภาพใบหน้าของคนที่ต้องการนำไปแปะสลับ")
 
     random_face_button = ctk.CTkButton(
         btn_frame_1,
-        text="🔄",
+        text="🔄 สุ่มรูป",
+        font=ctk.CTkFont(size=12),
         cursor="hand2",
-        width=40,
+        width=75,
         command=lambda: fetch_random_face(),
         fg_color="#374151",
         hover_color="#4B5563",
     )
     random_face_button.pack(side="right")
-    ToolTip(random_face_button, _("Get a random face from thispersondoesnotexist.com"))
+    ToolTip(random_face_button, "ดาวน์โหลดรูปสุ่มใบหน้าจากอินเทอร์เน็ต")
 
     # 2. Target Media Card
     target_card = ctk.CTkFrame(left_frame, corner_radius=10)
     target_card.pack(fill="x", pady=0)
 
     target_title = ctk.CTkLabel(
-        target_card, text="🎬 Target Image / Video", font=ctk.CTkFont(size=14, weight="bold")
+        target_card, text="🎬 วิดีโอ หรือ รูปภาพเป้าหมาย", font=ctk.CTkFont(size=14, weight="bold")
     )
     target_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -283,7 +286,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     target_preview_frame.pack(fill="x", padx=15, pady=5)
     target_preview_frame.pack_propagate(False)
 
-    target_label = ctk.CTkLabel(target_preview_frame, text="Click 'Select a target' below", text_color="#6B7280")
+    target_label = ctk.CTkLabel(target_preview_frame, text="คลิกปุ่ม 'เลือกวิดีโอ/รูปภาพ' ด้านล่าง", text_color="#6B7280", font=ctk.CTkFont(size=12))
     target_label.pack(fill="both", expand=True, padx=5, pady=5)
 
     btn_frame_2 = ctk.CTkFrame(target_card, fg_color="transparent")
@@ -291,26 +294,28 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     select_target_button = ctk.CTkButton(
         btn_frame_2,
-        text=_("Select a target"),
+        text="🎞 เลือกวิดีโอ/รูปภาพ",
+        font=ctk.CTkFont(size=13),
         cursor="hand2",
         command=lambda: select_target_path(),
         fg_color="#2563EB",
         hover_color="#1D4ED8",
     )
     select_target_button.pack(side="left", fill="x", expand=True, padx=(0, 5))
-    ToolTip(select_target_button, _("Choose the target image or video to apply face swap to"))
+    ToolTip(select_target_button, "เลือกไฟล์วิดีโอหรือรูปภาพที่ต้องการเปลี่ยนหน้า")
 
     swap_faces_button = ctk.CTkButton(
         btn_frame_2,
-        text="↔ Swap",
+        text="↔ สลับรูป",
+        font=ctk.CTkFont(size=12),
         cursor="hand2",
-        width=70,
+        width=75,
         command=lambda: swap_faces_paths(),
         fg_color="#374151",
         hover_color="#4B5563",
     )
     swap_faces_button.pack(side="right")
-    ToolTip(swap_faces_button, _("Swap source and target images"))
+    ToolTip(swap_faces_button, "สลับตำแหน่งระหว่างรูปต้นฉบับกับรูปเป้าหมาย")
 
     # ==================== RIGHT COLUMN: Controls & Settings Cards ====================
     right_frame = ctk.CTkFrame(main_scroll, fg_color="transparent")
@@ -321,36 +326,36 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     enhancer_card.pack(fill="x", pady=(0, 12))
 
     enhancer_title = ctk.CTkLabel(
-        enhancer_card, text="✨ AI Enhancer & Sliders", font=ctk.CTkFont(size=14, weight="bold")
+        enhancer_card, text="✨ ปรับแต่งคุณภาพและความคมชัด", font=ctk.CTkFont(size=14, weight="bold")
     )
     enhancer_title.pack(anchor="w", padx=15, pady=(10, 5))
 
     # Enhancer Dropdown
     enh_sub_frame = ctk.CTkFrame(enhancer_card, fg_color="transparent")
     enh_sub_frame.pack(fill="x", padx=15, pady=4)
-    ctk.CTkLabel(enh_sub_frame, text="Face Enhancer:", font=ctk.CTkFont(size=12)).pack(side="left")
+    ctk.CTkLabel(enh_sub_frame, text="โมเดลปรับความคมชัด:", font=ctk.CTkFont(size=12)).pack(side="left")
 
-    enhancer_options = ["None", "GFPGAN", "GPEN-512", "GPEN-256"]
-    enhancer_key_map = {
-        "None": None,
+    enhancer_options_display = ["ไม่ปรับแต่ง (None)", "GFPGAN", "GPEN-512", "GPEN-256"]
+    enhancer_map_to_key = {
+        "ไม่ปรับแต่ง (None)": None,
         "GFPGAN": "face_enhancer",
         "GPEN-512": "face_enhancer_gpen512",
         "GPEN-256": "face_enhancer_gpen256",
     }
-    initial_enhancer = "None"
+    initial_enhancer_display = "ไม่ปรับแต่ง (None)"
     if modules.globals.fp_ui.get("face_enhancer", False):
-        initial_enhancer = "GFPGAN"
+        initial_enhancer_display = "GFPGAN"
     elif modules.globals.fp_ui.get("face_enhancer_gpen512", False):
-        initial_enhancer = "GPEN-512"
+        initial_enhancer_display = "GPEN-512"
     elif modules.globals.fp_ui.get("face_enhancer_gpen256", False):
-        initial_enhancer = "GPEN-256"
+        initial_enhancer_display = "GPEN-256"
 
-    enhancer_variable = ctk.StringVar(value=initial_enhancer)
+    enhancer_variable = ctk.StringVar(value=initial_enhancer_display)
 
     def on_enhancer_change(choice: str):
         for key in ["face_enhancer", "face_enhancer_gpen256", "face_enhancer_gpen512"]:
             update_tumbler(key, False)
-        selected_key = enhancer_key_map.get(choice)
+        selected_key = enhancer_map_to_key.get(choice)
         if selected_key:
             update_tumbler(selected_key, True)
         save_switch_states()
@@ -358,18 +363,18 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     enhancer_dropdown = ctk.CTkOptionMenu(
         enh_sub_frame,
         variable=enhancer_variable,
-        values=enhancer_options,
+        values=enhancer_options_display,
         command=on_enhancer_change,
-        width=130,
+        width=140,
         height=26,
     )
     enhancer_dropdown.pack(side="right")
-    ToolTip(enhancer_dropdown, _("Select a face enhancement model (None = no enhancement)"))
+    ToolTip(enhancer_dropdown, "เลือกโมเดลช่วยปรับความคมชัดของใบหน้าผลลัพธ์")
 
     # Transparency Slider
     trans_frame = ctk.CTkFrame(enhancer_card, fg_color="transparent")
     trans_frame.pack(fill="x", padx=15, pady=4)
-    ctk.CTkLabel(trans_frame, text="Transparency:", font=ctk.CTkFont(size=12)).pack(side="left")
+    ctk.CTkLabel(trans_frame, text="ความโปร่งใส (Opacity):", font=ctk.CTkFont(size=12)).pack(side="left")
 
     transparency_var = ctk.DoubleVar(value=1.0)
 
@@ -379,41 +384,41 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
         percentage = int(val * 100)
         if percentage == 0:
             modules.globals.fp_ui["face_enhancer"] = False
-            update_status("Transparency set to 0% - Face swapping disabled.")
+            update_status("ปรับความโปร่งใสเป็น 0% - ปิดการสลับใบหน้า")
         elif percentage == 100:
             modules.globals.face_swapper_enabled = True
-            update_status("Transparency set to 100%.")
+            update_status("ปรับความโปร่งใสเป็น 100% (สลับหน้าเต็มรูปแบบ)")
         else:
             modules.globals.face_swapper_enabled = True
-            update_status(f"Transparency set to {percentage}%")
+            update_status(f"ปรับความโปร่งใสเป็น {percentage}%")
 
     transparency_slider = ctk.CTkSlider(
         trans_frame, from_=0.0, to=1.0, variable=transparency_var, command=on_transparency_change, width=130, height=16
     )
     transparency_slider.pack(side="right")
-    ToolTip(transparency_slider, _("Blend between original and swapped face"))
+    ToolTip(transparency_slider, "ปรับระดับความเนียนในการผสมระหว่างหน้าเดิมกับหน้าใหม่")
 
     # Sharpness Slider
     sharp_frame = ctk.CTkFrame(enhancer_card, fg_color="transparent")
     sharp_frame.pack(fill="x", padx=15, pady=4)
-    ctk.CTkLabel(sharp_frame, text="Sharpness:", font=ctk.CTkFont(size=12)).pack(side="left")
+    ctk.CTkLabel(sharp_frame, text="ความคมชัด (Sharpness):", font=ctk.CTkFont(size=12)).pack(side="left")
 
     sharpness_var = ctk.DoubleVar(value=0.0)
 
     def on_sharpness_change(value: float):
         modules.globals.sharpness = float(value)
-        update_status(f"Sharpness set to {value:.1f}")
+        update_status(f"ปรับความคมชัดเป็น {value:.1f}")
 
     sharpness_slider = ctk.CTkSlider(
         sharp_frame, from_=0.0, to=5.0, variable=sharpness_var, command=on_sharpness_change, width=130, height=16
     )
     sharpness_slider.pack(side="right")
-    ToolTip(sharpness_slider, _("Sharpen the enhanced face output"))
+    ToolTip(sharpness_slider, "เร่งความคมชัดภาพส่วนใบหน้า")
 
     # Mouth Mask Size Slider
     mouth_frame = ctk.CTkFrame(enhancer_card, fg_color="transparent")
     mouth_frame.pack(fill="x", padx=15, pady=(4, 10))
-    ctk.CTkLabel(mouth_frame, text="Mouth Mask:", font=ctk.CTkFont(size=12)).pack(side="left")
+    ctk.CTkLabel(mouth_frame, text="ขอบเขตปาก (Mouth Mask):", font=ctk.CTkFont(size=12)).pack(side="left")
 
     mouth_mask_size_var = ctk.DoubleVar(value=modules.globals.mouth_mask_size)
     mouth_mask_var = ctk.BooleanVar(value=modules.globals.mouth_mask)
@@ -442,14 +447,14 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     mouth_mask_size_slider.pack(side="right")
     mouth_mask_size_slider.bind("<ButtonPress-1>", on_mouth_mask_slider_press)
     mouth_mask_size_slider.bind("<ButtonRelease-1>", on_mouth_mask_slider_release)
-    ToolTip(mouth_mask_size_slider, _("0 = use swapped mouth, 100 = expose original mouth"))
+    ToolTip(mouth_mask_size_slider, "0 = ใช้ปากสลับหน้า, 100 = เปิดเผยริมฝีปากและคางเดิมเพื่อความสมจริง")
 
     # 2. Pipeline Switches Card
     switches_card = ctk.CTkFrame(right_frame, corner_radius=10)
     switches_card.pack(fill="x", pady=0)
 
     switches_title = ctk.CTkLabel(
-        switches_card, text="⚙️ Pipeline Options", font=ctk.CTkFont(size=14, weight="bold")
+        switches_card, text="⚙️ ตัวเลือกการประมวลผล", font=ctk.CTkFont(size=14, weight="bold")
     )
     switches_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -460,39 +465,39 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     keep_fps_value = ctk.BooleanVar(value=modules.globals.keep_fps)
     keep_fps_checkbox = ctk.CTkSwitch(
-        sw_grid, text=_("Keep fps"), variable=keep_fps_value, cursor="hand2",
+        sw_grid, text="คงค่า FPS เดิม", variable=keep_fps_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "keep_fps", keep_fps_value.get()), save_switch_states())
     )
     keep_fps_checkbox.grid(row=0, column=0, sticky="w", pady=4)
-    ToolTip(keep_fps_checkbox, _("Output video keeps the original frame rate"))
+    ToolTip(keep_fps_checkbox, "วิดีโอผลลัพธ์จะคงความลื่นไหลเฟรมเรตเท่าเดิม")
 
     keep_audio_value = ctk.BooleanVar(value=modules.globals.keep_audio)
     keep_audio_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Keep audio"), variable=keep_audio_value, cursor="hand2",
+        sw_grid, text="รักษาเสียงเดิม", variable=keep_audio_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "keep_audio", keep_audio_value.get()), save_switch_states())
     )
     keep_audio_switch.grid(row=0, column=1, sticky="w", pady=4)
-    ToolTip(keep_audio_switch, _("Copy audio track from the source video to output"))
+    ToolTip(keep_audio_switch, "คัดลอกเสียงจากวิดีโอต้นฉบับมาใส่ในไฟล์ผลลัพธ์")
 
     keep_frames_value = ctk.BooleanVar(value=modules.globals.keep_frames)
     keep_frames_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Keep frames"), variable=keep_frames_value, cursor="hand2",
+        sw_grid, text="เก็บไฟล์เฟรมชั่วคราว", variable=keep_frames_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "keep_frames", keep_frames_value.get()), save_switch_states())
     )
     keep_frames_switch.grid(row=1, column=0, sticky="w", pady=4)
-    ToolTip(keep_frames_switch, _("Keep extracted frames on disk after processing"))
+    ToolTip(keep_frames_switch, "เก็บไฟล์รูปภาพเฟรมในดิสก์ไว้หลังจากประมวลผลเสร็จ")
 
     many_faces_value = ctk.BooleanVar(value=modules.globals.many_faces)
     many_faces_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Many faces"), variable=many_faces_value, cursor="hand2",
+        sw_grid, text="สลับทุกใบหน้า", variable=many_faces_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "many_faces", many_faces_value.get()), save_switch_states())
     )
     many_faces_switch.grid(row=1, column=1, sticky="w", pady=4)
-    ToolTip(many_faces_switch, _("Swap every detected face, not just the primary one"))
+    ToolTip(many_faces_switch, "สลับหน้าทุกคนที่ตรวจพบในเฟรมภาพ")
 
     map_faces = ctk.BooleanVar(value=modules.globals.map_faces)
     map_faces_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Map faces"), variable=map_faces, cursor="hand2",
+        sw_grid, text="จับคู่ใบหน้ากำหนดเอง", variable=map_faces, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (
             setattr(modules.globals, "map_faces", map_faces.get()),
             save_switch_states(),
@@ -500,31 +505,31 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
         )
     )
     map_faces_switch.grid(row=2, column=0, sticky="w", pady=4)
-    ToolTip(map_faces_switch, _("Manually assign which source face maps to which target face"))
+    ToolTip(map_faces_switch, "เปิดหน้าต่างจับคู่ว่าคนไหนสลับกับใบหน้าคนไหน")
 
     poisson_blend_value = ctk.BooleanVar(value=modules.globals.poisson_blend)
     poisson_blend_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Poisson Blend"), variable=poisson_blend_value, cursor="hand2",
+        sw_grid, text="ผสมขอบเนียน (Poisson)", variable=poisson_blend_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "poisson_blend", poisson_blend_value.get()), save_switch_states())
     )
     poisson_blend_switch.grid(row=2, column=1, sticky="w", pady=4)
-    ToolTip(poisson_blend_switch, _("Blend face edges smoothly using Poisson blending"))
+    ToolTip(poisson_blend_switch, "ผสมขอบรอบใบหน้าให้เนียนเรียบด้วยอัลกอริทึม Poisson")
 
     show_fps_value = ctk.BooleanVar(value=modules.globals.show_fps)
     show_fps_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Show FPS"), variable=show_fps_value, cursor="hand2",
+        sw_grid, text="แสดง FPS", variable=show_fps_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "show_fps", show_fps_value.get()), save_switch_states())
     )
     show_fps_switch.grid(row=3, column=0, sticky="w", pady=4)
-    ToolTip(show_fps_switch, _("Display frames-per-second counter on the live preview"))
+    ToolTip(show_fps_switch, "แสดงตัวเลขเฟรมเรตต่อวินาทีบนมุมกล้องสด")
 
     color_correction_value = ctk.BooleanVar(value=modules.globals.color_correction)
     color_correction_switch = ctk.CTkSwitch(
-        sw_grid, text=_("Fix Blueish Cam"), variable=color_correction_value, cursor="hand2",
+        sw_grid, text="แก้สีกล้องอมฟ้า", variable=color_correction_value, cursor="hand2", font=ctk.CTkFont(size=12),
         command=lambda: (setattr(modules.globals, "color_correction", color_correction_value.get()), save_switch_states())
     )
     color_correction_switch.grid(row=3, column=1, sticky="w", pady=4)
-    ToolTip(color_correction_switch, _("Fix blue/green color cast from some webcams"))
+    ToolTip(color_correction_switch, "ปรับแก้ทอนสีอมฟ้าอมเขียวจากกล้องเว็บแคมบางรุ่น")
 
     # ==================== LOWER SECTION: Webcam & Actions ====================
     bottom_frame = ctk.CTkFrame(root, corner_radius=10)
@@ -533,90 +538,91 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     cam_frame = ctk.CTkFrame(bottom_frame, fg_color="transparent")
     cam_frame.pack(fill="x", padx=15, pady=(10, 5))
 
-    ctk.CTkLabel(cam_frame, text=_("Select Camera:"), font=ctk.CTkFont(size=13, weight="bold")).pack(side="left", padx=(0, 10))
+    ctk.CTkLabel(cam_frame, text="เลือกรุ่นกล้องเว็บแคม:", font=ctk.CTkFont(size=13, weight="bold")).pack(side="left", padx=(0, 10))
 
     available_cameras = get_available_cameras()
     camera_indices, camera_names = available_cameras
 
-    if not camera_names or camera_names[0] == "No cameras found":
-        camera_variable = ctk.StringVar(value="No cameras found")
-        camera_optionmenu = ctk.CTkOptionMenu(cam_frame, variable=camera_variable, values=["No cameras found"], state="disabled", width=200)
+    if not camera_names or camera_names[0] == "No cameras found" or camera_names[0] == "ไม่พบกล้องเว็บแคม":
+        camera_variable = ctk.StringVar(value="ไม่พบกล้องเว็บแคม")
+        camera_optionmenu = ctk.CTkOptionMenu(cam_frame, variable=camera_variable, values=["ไม่พบกล้องเว็บแคม"], state="disabled", width=200)
     else:
         camera_variable = ctk.StringVar(value=camera_names[0])
         camera_optionmenu = ctk.CTkOptionMenu(cam_frame, variable=camera_variable, values=camera_names, width=200)
 
     camera_optionmenu.pack(side="left", fill="x", expand=True)
-    ToolTip(camera_optionmenu, _("Select which camera to use for live mode"))
+    ToolTip(camera_optionmenu, "เลือกรุ่นกล้องถ่ายภาพที่จะใช้งานในโหมดเรียลไทม์")
 
     live_button = ctk.CTkButton(
         cam_frame,
-        text=_("📹 Live Webcam"),
+        text="📹 เปิดกล้องสด (Live)",
+        font=ctk.CTkFont(size=13),
         cursor="hand2",
-        width=120,
+        width=140,
         fg_color="#059669",
         hover_color="#047857",
         command=lambda: webcam_preview(
             root,
             (
                 camera_indices[camera_names.index(camera_variable.get())]
-                if camera_names and camera_names[0] != "No cameras found"
+                if camera_names and camera_names[0] != "ไม่พบกล้องเว็บแคม" and camera_names[0] != "No cameras found"
                 else None
             ),
         ),
-        state=("normal" if camera_names and camera_names[0] != "No cameras found" else "disabled"),
+        state=("normal" if camera_names and camera_names[0] != "ไม่พบกล้องเว็บแคม" and camera_names[0] != "No cameras found" else "disabled"),
     )
     live_button.pack(side="right", padx=(10, 0))
-    ToolTip(live_button, _("Start real-time face swap using webcam"))
+    ToolTip(live_button, "เริ่มสลับใบหน้าแบบเรียลไทม์สดผ่านกล้องเว็บแคม")
 
     action_frame = ctk.CTkFrame(bottom_frame, fg_color="transparent")
     action_frame.pack(fill="x", padx=15, pady=(5, 10))
 
     start_button = ctk.CTkButton(
         action_frame,
-        text=_("🚀 START FACE SWAP"),
-        font=ctk.CTkFont(size=14, weight="bold"),
+        text="🚀 เริ่มสลับใบหน้า (START)",
+        font=ctk.CTkFont(size=15, weight="bold"),
         cursor="hand2",
-        height=38,
+        height=40,
         fg_color="#2563EB",
         hover_color="#1D4ED8",
         command=lambda: analyze_target(start, root),
     )
     start_button.pack(side="left", fill="x", expand=True, padx=(0, 5))
-    ToolTip(start_button, _("Begin processing the target image/video with selected face"))
+    ToolTip(start_button, "เริ่มกระบวนการสลับใบหน้าในวิดีโอหรือรูปภาพที่เลือกไว้")
 
     preview_button = ctk.CTkButton(
         action_frame,
-        text=_("👁 Preview"),
+        text="👁 ดูตัวอย่าง",
         font=ctk.CTkFont(size=13),
         cursor="hand2",
-        height=38,
-        width=100,
+        height=40,
+        width=110,
         fg_color="#4B5563",
         hover_color="#374151",
         command=lambda: toggle_preview(),
     )
     preview_button.pack(side="left", padx=5)
-    ToolTip(preview_button, _("Show/hide a preview of the processed output"))
+    ToolTip(preview_button, "แสดงหรือซ่อนหน้าต่างดูภาพตัวอย่าง")
 
     stop_button = ctk.CTkButton(
         action_frame,
-        text=_("✖ Quit"),
+        text="✖ ปิดโปรแกรม",
         font=ctk.CTkFont(size=13),
         cursor="hand2",
-        height=38,
-        width=80,
+        height=40,
+        width=100,
         fg_color="#DC2626",
         hover_color="#B91C1C",
         command=lambda: destroy(),
     )
     stop_button.pack(side="right", padx=(5, 0))
-    ToolTip(stop_button, _("Stop processing and close the application"))
+    ToolTip(stop_button, "หยุดการทำงานและปิดหน้าต่างโปรแกรม")
 
     global status_label
     status_bar = ctk.CTkFrame(root, height=30, fg_color="#111827", corner_radius=0)
     status_bar.pack(fill="x", side="bottom")
 
-    status_label = ctk.CTkLabel(status_bar, text="Ready", font=ctk.CTkFont(size=11), text_color="#3B82F6", justify="center")
+    status_label = ctk.CTkLabel(status_bar, text="พร้อมใช้งาน", font=ctk.CTkFont(size=12), text_color="#3B82F6", justify="center")
     status_label.pack(fill="both", expand=True, pady=3)
 
     return root
