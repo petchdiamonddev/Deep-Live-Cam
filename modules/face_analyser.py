@@ -36,18 +36,20 @@ def get_face_analyser() -> Any:
 
 
 def get_one_face(frame: Frame) -> Any:
-    face = get_face_analyser().get(frame)
-    try:
-        return min(face, key=lambda x: x.bbox[0])
-    except ValueError:
-        return None
+    with FACE_ANALYSER_LOCK:
+        try:
+            face = get_face_analyser().get(frame)
+            return min(face, key=lambda x: x.bbox[0])
+        except (ValueError, TypeError, AttributeError, IndexError):
+            return None
 
 
 def get_many_faces(frame: Frame) -> Any:
-    try:
-        return get_face_analyser().get(frame)
-    except IndexError:
-        return None
+    with FACE_ANALYSER_LOCK:
+        try:
+            return get_face_analyser().get(frame)
+        except (IndexError, TypeError, AttributeError):
+            return None
 
 def has_valid_map() -> bool:
     for map in modules.globals.source_target_map:

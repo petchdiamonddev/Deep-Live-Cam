@@ -531,6 +531,29 @@ def process_frame_v2(temp_frame: Frame, temp_frame_path: str = "") -> Frame:
     return final_frame
 
 
+SOURCE_FACE_CACHE = {}
+
+def get_source_face_cached(source_path: str) -> Any:
+    global SOURCE_FACE_CACHE
+    if not source_path or not os.path.exists(source_path):
+        return None
+    if source_path in SOURCE_FACE_CACHE:
+        return SOURCE_FACE_CACHE[source_path]
+    with THREAD_LOCK:
+        if source_path in SOURCE_FACE_CACHE:
+            return SOURCE_FACE_CACHE[source_path]
+        try:
+            source_img = cv2.imread(source_path)
+            if source_img is not None:
+                face = get_one_face(source_img)
+                if face is not None:
+                    SOURCE_FACE_CACHE[source_path] = face
+                    return face
+        except Exception as e:
+            print(f"{NAME}: Error extracting source face from {source_path}: {e}")
+    return SOURCE_FACE_CACHE.get(source_path)
+
+
 def process_frames(
     source_path: str, temp_frame_paths: List[str], progress: Any = None
 ) -> None:
@@ -540,48 +563,21 @@ def process_frames(
     Iterates through frames, applies the appropriate swapping logic based on globals,
     and saves the result back to the frame path. Handles multi-threading via caller.
     """
-    # Determine which processing function to use based on map_faces global setting
     use_v2 = getattr(modules.globals, "map_faces", False)
-    source_face = None # Initialize source_face
+    source_face = None
 
-    # --- Pre-load source face only if needed (Simple Mode: map_faces=False) ---
     if not use_v2:
-        if not source_path or not os.path.exists(source_path):
-            update_status(f"Error: Source path invalid or not provided for simple mode: {source_path}", NAME)
-            # Log the error but allow proceeding; subsequent check will stop processing.
-        else:
-            try:
-                source_img = cv2.imread(source_path)
-                if source_img is None:
-                    # Specific error for file reading failure
-                    update_status(f"Error reading source image file {source_path}. Please check the path and file integrity.", NAME)
-                else:
-                    source_face = get_one_face(source_img)
-                    if source_face is None:
-                        # Specific message for no face detected after successful read
-                        update_status(f"Warning: Successfully read source image {source_path}, but no face was detected. Swaps will be skipped.", NAME)
-                    # Free memory immediately after extracting face
-                    del source_img
-            except Exception as e:
-                # Print the specific exception caught
-                import traceback
-                print(f"{NAME}: Caught exception during source image processing for {source_path}:")
-                traceback.print_exc() # Print the full traceback
-                update_status(f"Error during source image reading or analysis {source_path}: {e}", NAME)
-                # Log general exception during the process
+        source_face = get_source_face_cached(source_path)
 
     total_frames = len(temp_frame_paths)
-    # update_status(f"Processing {total_frames} frames. Use V2 (map_faces): {use_v2}", NAME) # Optional Debug
 
-    # --- Stop processing entirely if in Simple Mode and source face is invalid ---
     if not use_v2 and source_face is None:
         update_status(f"Halting video processing: Invalid or no face detected in source image for simple mode.", NAME)
         if progress:
-            # Ensure the progress bar completes if it was started
             remaining_updates = total_frames - progress.n if hasattr(progress, 'n') else total_frames
             if remaining_updates > 0:
                 progress.update(remaining_updates)
-        return # Exit the function entirely
+        return
 
     # --- Process each frame path provided in the list ---
     # Note: In the current core.py multi_process_frame, temp_frame_paths will usually contain only ONE path per call.
