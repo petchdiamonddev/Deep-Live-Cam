@@ -238,7 +238,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     source_card.pack(fill="x", pady=(0, 12))
 
     source_title = ctk.CTkLabel(
-        source_card, text="👤 รูปภาพใบหน้าต้นฉบับ", font=ctk.CTkFont(size=14, weight="bold")
+        source_card, text="รูปภาพใบหน้าต้นฉบับ (Source Face)", font=ctk.CTkFont(size=14, weight="bold")
     )
     source_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -246,7 +246,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     source_preview_frame.pack(fill="x", padx=15, pady=5)
     source_preview_frame.pack_propagate(False)
 
-    source_label = ctk.CTkLabel(source_preview_frame, text="คลิกปุ่ม 'เลือกรูปใบหน้า' ด้านล่าง", text_color="#6B7280", font=ctk.CTkFont(size=12))
+    source_label = ctk.CTkLabel(source_preview_frame, text="เลือกรูปภาพใบหน้าจากไฟล์ในเครื่อง", text_color="#9CA3AF", font=ctk.CTkFont(size=12))
     source_label.pack(fill="both", expand=True, padx=5, pady=5)
 
     btn_frame_1 = ctk.CTkFrame(source_card, fg_color="transparent")
@@ -254,8 +254,8 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     select_face_button = ctk.CTkButton(
         btn_frame_1,
-        text="📷 เลือกรูปใบหน้า",
-        font=ctk.CTkFont(size=13),
+        text="เลือกรูปภาพใบหน้า",
+        font=ctk.CTkFont(size=13, weight="bold"),
         cursor="hand2",
         command=lambda: select_source_path(),
         fg_color="#2563EB",
@@ -266,10 +266,10 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     random_face_button = ctk.CTkButton(
         btn_frame_1,
-        text="🔄 สุ่มรูป",
+        text="สุ่มรูปภาพ",
         font=ctk.CTkFont(size=12),
         cursor="hand2",
-        width=75,
+        width=85,
         command=lambda: fetch_random_face(),
         fg_color="#374151",
         hover_color="#4B5563",
@@ -282,7 +282,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     target_card.pack(fill="x", pady=0)
 
     target_title = ctk.CTkLabel(
-        target_card, text="🎬 วิดีโอ หรือ รูปภาพเป้าหมาย", font=ctk.CTkFont(size=14, weight="bold")
+        target_card, text="สื่อเป้าหมาย (Target Media)", font=ctk.CTkFont(size=14, weight="bold")
     )
     target_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -290,7 +290,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     target_preview_frame.pack(fill="x", padx=15, pady=5)
     target_preview_frame.pack_propagate(False)
 
-    target_label = ctk.CTkLabel(target_preview_frame, text="คลิกปุ่ม 'เลือกวิดีโอ/รูปภาพ' ด้านล่าง", text_color="#6B7280", font=ctk.CTkFont(size=12))
+    target_label = ctk.CTkLabel(target_preview_frame, text="เลือกไฟล์วิดีโอหรือรูปภาพเป้าหมาย", text_color="#9CA3AF", font=ctk.CTkFont(size=12))
     target_label.pack(fill="both", expand=True, padx=5, pady=5)
 
     btn_frame_2 = ctk.CTkFrame(target_card, fg_color="transparent")
@@ -298,8 +298,8 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     select_target_button = ctk.CTkButton(
         btn_frame_2,
-        text="🎞 เลือกวิดีโอ/รูปภาพ",
-        font=ctk.CTkFont(size=13),
+        text="เลือกวิดีโอ / รูปภาพ",
+        font=ctk.CTkFont(size=13, weight="bold"),
         cursor="hand2",
         command=lambda: select_target_path(),
         fg_color="#2563EB",
@@ -310,10 +310,10 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     swap_faces_button = ctk.CTkButton(
         btn_frame_2,
-        text="↔ สลับรูป",
+        text="สลับไฟล์",
         font=ctk.CTkFont(size=12),
         cursor="hand2",
-        width=75,
+        width=85,
         command=lambda: swap_faces_paths(),
         fg_color="#374151",
         hover_color="#4B5563",
@@ -330,8 +330,9 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     enhancer_card.pack(fill="x", pady=(0, 12))
 
     enhancer_title = ctk.CTkLabel(
-        enhancer_card, text="✨ ปรับแต่งคุณภาพและความคมชัด", font=ctk.CTkFont(size=14, weight="bold")
+        enhancer_card, text="การปรับแต่งความคมชัด (Quality Enhancement)", font=ctk.CTkFont(size=14, weight="bold")
     )
+    enhancer_title.pack(anchor="w", padx=15, pady=(10, 5))
     enhancer_title.pack(anchor="w", padx=15, pady=(10, 5))
 
     # Enhancer Dropdown
@@ -458,7 +459,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
     switches_card.pack(fill="x", pady=0)
 
     switches_title = ctk.CTkLabel(
-        switches_card, text="⚙️ ตัวเลือกการประมวลผล", font=ctk.CTkFont(size=14, weight="bold")
+        switches_card, text="ตัวเลือกการประมวลผล (Processing Options)", font=ctk.CTkFont(size=14, weight="bold")
     )
     switches_title.pack(anchor="w", padx=15, pady=(10, 5))
 
@@ -559,8 +560,8 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     live_button = ctk.CTkButton(
         cam_frame,
-        text="📹 เปิดกล้องสด (Live)",
-        font=ctk.CTkFont(size=13),
+        text="เปิดกล้องสด (Live)",
+        font=ctk.CTkFont(size=13, weight="bold"),
         cursor="hand2",
         width=140,
         fg_color="#059669",
@@ -583,7 +584,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     start_button = ctk.CTkButton(
         action_frame,
-        text="🚀 เริ่มสลับใบหน้า (START)",
+        text="เริ่มสลับใบหน้า (START)",
         font=ctk.CTkFont(size=15, weight="bold"),
         cursor="hand2",
         height=40,
@@ -596,7 +597,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     preview_button = ctk.CTkButton(
         action_frame,
-        text="👁 ดูตัวอย่าง",
+        text="ดูตัวอย่าง",
         font=ctk.CTkFont(size=13),
         cursor="hand2",
         height=40,
@@ -610,7 +611,7 @@ def create_root(start: Callable[[], None], destroy: Callable[[], None]) -> ctk.C
 
     stop_button = ctk.CTkButton(
         action_frame,
-        text="✖ ปิดโปรแกรม",
+        text="ปิดโปรแกรม",
         font=ctk.CTkFont(size=13),
         cursor="hand2",
         height=40,
