@@ -644,23 +644,31 @@ def close_mapper_window():
 
 def analyze_target(start: Callable[[], None], root: ctk.CTk):
     if POPUP != None and POPUP.winfo_exists():
-        update_status("Please complete pop-up or close it.")
+        update_status("กรุณาจัดการหน้าต่าง Pop-up ให้เรียบร้อยก่อน")
+        return
+
+    if not modules.globals.source_path and not modules.globals.map_faces:
+        update_status("กรุณาเลือกรูปภาพใบหน้าต้นฉบับก่อน!")
+        return
+
+    if not modules.globals.target_path:
+        update_status("กรุณาเลือกวิดีโอหรือรูปภาพเป้าหมายก่อน!")
         return
 
     if modules.globals.map_faces:
         modules.globals.source_target_map = []
 
         if is_image(modules.globals.target_path):
-            update_status("Getting unique faces")
+            update_status("กำลังค้นหาใบหน้าในภาพเป้าหมาย...")
             get_unique_faces_from_target_image()
         elif is_video(modules.globals.target_path):
-            update_status("Getting unique faces")
+            update_status("กำลังค้นหาใบหน้าในวิดีโอเป้าหมาย...")
             get_unique_faces_from_target_video()
 
         if len(modules.globals.source_target_map) > 0:
             create_source_target_popup(start, root, modules.globals.source_target_map)
         else:
-            update_status("No faces found in target")
+            update_status("ไม่พบใบหน้าในภาพ/วิดีโอเป้าหมาย")
     else:
         select_output_path(start)
 
@@ -936,6 +944,14 @@ def select_target_path() -> None:
 def select_output_path(start: Callable[[], None]) -> None:
     global RECENT_DIRECTORY_OUTPUT, img_ft, vid_ft
 
+    if not modules.globals.source_path and not modules.globals.map_faces:
+        update_status("กรุณาเลือกรูปภาพใบหน้าต้นฉบับก่อน!")
+        return
+
+    if not modules.globals.target_path:
+        update_status("กรุณาเลือกวิดีโอหรือรูปภาพเป้าหมายก่อน!")
+        return
+
     if is_image(modules.globals.target_path):
         output_path = ctk.filedialog.asksaveasfilename(
             title=_("save image output file"),
@@ -954,10 +970,19 @@ def select_output_path(start: Callable[[], None]) -> None:
         )
     else:
         output_path = None
+
     if output_path:
         modules.globals.output_path = output_path
         RECENT_DIRECTORY_OUTPUT = os.path.dirname(modules.globals.output_path)
-        start()
+        
+        def run_start_async():
+            try:
+                update_status("กำลังเริ่มกระบวนการสลับใบหน้า...")
+                start()
+            except Exception as e:
+                update_status(f"เกิดข้อผิดพลาด: {e}")
+
+        threading.Thread(target=run_start_async, daemon=True).start()
 
 
 def check_and_ignore_nsfw(target, destroy: Callable = None) -> bool:
